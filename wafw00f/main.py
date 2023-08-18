@@ -540,7 +540,7 @@ def main():
 
         elif options.output.endswith('.json'):
             root_path = pathlib.Path(__file__).parent
-            file_path = root_path.joinpath('result.json')
+            file_path = root_path.joinpath(options.output)
             file_path.write_text(json.dumps(results))
 
             log.debug("Exporting data in json format to file: %s" % (options.output))
