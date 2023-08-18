@@ -24,7 +24,7 @@ from wafw00f.lib.asciiarts import Color, randomArt
 from wafw00f.lib.evillib import def_headers, urlParser, waftoolsengine
 from wafw00f.manager import load_plugins
 from wafw00f.wafprio import wafdetectionsprio
-
+import pathlib
 
 class WAFW00F(waftoolsengine):
 
@@ -307,8 +307,8 @@ def buildResultRecord(url, waf, evil_url=None):
     else:
         result['trigger_url'] = evil_url
         result['detected'] = False
-        result['firewall'] = 'None'
-        result['manufacturer'] = 'None'
+        result['firewall'] = None
+        result['manufacturer'] = None
     return result
 
 def getTextResults(res=None):
@@ -518,23 +518,37 @@ def main():
         if options.output == '-':
             enableStdOut()
             if options.format == 'json':
+
                 json.dump(results, sys.stdout, indent=2, sort_keys=True)
-            elif options.format == 'csv':
-                csvwriter = csv.writer(sys.stdout, delimiter=',', quotechar='"',
-                    quoting=csv.QUOTE_MINIMAL)
-                count = 0
-                for result in results:
-                    if count == 0:
-                        header = result.keys()
-                        csvwriter.writerow(header)
-                        count += 1
-                    csvwriter.writerow(result.values())
+
+            # elif options.format == 'csv':
+            #     csvwriter = csv.writer(sys.stdout, delimiter=',', quotechar='"',
+            #         quoting=csv.QUOTE_MINIMAL)
+            #     count = 0
+            #
+            #     for result in results:
+            #         if count == 0:
+            #             header = result.keys()
+            #             csvwriter.writerow(header)
+            #             count += 1
+            #         csvwriter.writerow(result.values())
+
             else:
                 print(os.linesep.join(getTextResults(results)))
+
+        # NEW
+
         elif options.output.endswith('.json'):
+            root_path = pathlib.Path(__file__).parent
+            file_path = root_path.joinpath('result.json')
+            file_path.write_text(json.dumps(results))
+
             log.debug("Exporting data in json format to file: %s" % (options.output))
-            with open(options.output, 'w') as outfile:
-                json.dump(results, outfile, indent=2, sort_keys=True)
+            # with open(options.output, 'w') as outfile:
+            #
+            #     json.dump(results, outfile, indent=2, sort_keys=True)
+
+
         elif options.output.endswith('.csv'):
             log.debug("Exporting data in csv format to file: %s" % (options.output))
             with open(options.output, 'w') as outfile:
